@@ -17,7 +17,6 @@ You have to use the dyno bot with ? prefix.
  - Reconnect on failed websocket connection
 
 ### ATTENTION
-
-THIS WILL NOT BE AN SOLUTION FOR SMALL SERVERS. THIS SOLUTION IS APPLIED ON A 1+K MEMBER SERVER. IT WILL BAN ANYONE THAT DMs THESE ACCOUNTS. THEY ARE SUPPOSED TO REMAIN COMPLETELY INACTIVE BUT STAY ON THE SERVER.
+I dont take responsibility for anything that is done using this project or if your account gets banned. This is a **research** project.
 
 
