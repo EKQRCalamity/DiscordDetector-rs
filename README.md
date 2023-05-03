@@ -9,6 +9,7 @@ Discord Advertisement/Scam/Invite Detector using Selfbots written in rust. Curre
  - Checking for Guild and DM Messages
  - Sending of message to specific channel
  - Config file
+ - Reconnect on failed websocket connection
 
 ### ATTENTION
 
