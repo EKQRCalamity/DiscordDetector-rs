@@ -27,7 +27,6 @@ pub fn configconstructor() -> ConfigStruct {
     let ids = useridinput.split(" ");
     let mut idstring = "".to_string();
     for id in ids {
-
         idstring += format!("{}, ", id).as_str();
     }
     idstring.truncate(idstring.len() - 2);

@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::Error;
 use tungstenite::stream::MaybeTlsStream;
 use serde_json::{Map, Value};
-//pub const CONNECTION: &'static str = "wss://gateway.discord.gg/?v=10&encoding=json";
 use tungstenite::{connect, Message};
 use url::Url;
 use chrono::{Datelike, Timelike, Local};
@@ -17,6 +16,7 @@ use crate::message::{sendmessage, MessageObj};
 struct GatewayResponse {
     url: String
 }
+
 #[derive(Serialize, Deserialize)]
 struct HeartbeatResponse {
     t: Option<String>,
@@ -24,6 +24,7 @@ struct HeartbeatResponse {
     op: i32,
     d: Map<String, Value>
 }
+
 #[derive(Serialize, Deserialize)]
 struct HeartbeatData {
     heartbeat_interval: u128
@@ -156,10 +157,7 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
         }
     }
 
-    let (mut socket, _response) = resc.unwrap();
-
-    //let mut last0s = 0;
-    
+    let (mut socket, _response) = resc.unwrap(); // Unwrap Socket from Result<>
     let msg = socket.read_message().expect("Error reading message");
 
     let re: HeartbeatResponse = serde_json::from_str(msg.to_text().unwrap()).unwrap();
@@ -172,23 +170,27 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
     let payload = Message::Text(jsondata);
     socket.write_message(payload).expect("Error sending heartbeat");
     socket.read_message().expect("Error reading heartbeat!");
+
     println!("[{:02}.{:02}.{:02}] - First Heartbeat sent at {:02}:{:02}:{:02}!", Local::now().day(), Local::now().month(), Local::now().year(), Local::now().hour(), Local::now().minute(), Local::now().second());
+    
     let pingvec = newvecfromvec(&pings);
+    
     match socket.get_mut() {
         MaybeTlsStream::NativeTls(t) => {
-            //t.get_mut().set_nonblocking(true).expect("Error");
             t.get_mut().set_read_timeout(Some(std::time::Duration::from_millis((hbdata.heartbeat_interval as f64 / 1.2) as u64))).expect("Error setting read timeout");
         },
 
         _ => panic!("Unsupported stream!"),
     }
+    
     let authdata: String = format!(r#"{{"op": 2,"d": {{"token": "{}","properties": {{"os": "linux","browser": "firefox","device": "pc"}}}}}}"#, token);
     let authpayload = Message::Text(authdata);
     socket.write_message(authpayload).expect("Failed to send auth payload");
     socket.read_message().expect("Failed reading auth response!");
-    //println!("Payload: {}", authret);
+
     let pingclone = pingvec.to_vec();
     let mut lasts = 0;
+    
     loop {
         let msg2 = match socket.read_message() {
             Ok(msg) => msg,
@@ -202,9 +204,6 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
                 match msgrecvobj {
                     Ok(msgobj) => {
                         println!("[{:02}.{:02}.{:02}] - Was a guild message - ignored", Local::now().day(), Local::now().month(), Local::now().year());
-                        if msgobj.op == 0 {
-                            //last0s = msgobj.s;
-                        }
                     },
                     Err(_err) => {
                         let personalmessageobj: Result<MessageRoot, Error> = serde_json::from_str(msg2.to_text().unwrap());
@@ -217,9 +216,6 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
                                 let msg1: MessageObj = message::MessageObj::new(format!("{}\nMessage from <@{}> - {}#{} received:\n\n{}", pingstr, msgobj.d.author.id, msgobj.d.author.username, msgobj.d.author.discriminator, msgobj.d.content));
                                 sendmessage(msg1, token, channelid);
                                 sendmessage(message::MessageObj::new(format!("?ban <@{}> 0 \"Sent a dm! Likely spam\"", msgobj.d.author.id)), token, channelid);
-                                if msgobj.op == 0 {
-                                    //last0s = msgobj.s;
-                                }
                                 lasts = msgobj.s;
                             },
                             Err(_err) => {
@@ -227,9 +223,6 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
                                 match usualobj {
                                     Ok(obj) => {
                                         println!("[{:02}.{:02}.{:02}] - Weird message received - OP Code: {}, S: {}, Type: {}", Local::now().day(), Local::now().month(), Local::now().year(), obj.op, obj.s, obj.t);
-                                        if obj.op == 0 {
-                                            //last0s = obj.s;
-                                        }
                                         lasts = obj.s;
                                     },
                                     Err(_err) => {
@@ -251,9 +244,6 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
                 match usualobj {
                     Ok(obj) => {
                         println!("[{:02}.{:02}.{:02}] - Usual Message received: OP Code = {}, S = {}, Type = {}", Local::now().day(), Local::now().month(), Local::now().year(), obj.op, obj.s, obj.t);
-                        if obj.op == 0 {
-                            //last0s = obj.s;
-                        }
                         lasts = obj.s;
 
                     },
@@ -270,9 +260,11 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
                 }
             }
         }
+        
         let jsondata = format!(r#"{{"op": 1, "d": {}}}"#, lasts);
         let payload = Message::Text(jsondata);
         let respo = socket.write_message(payload);
+        
         match respo {
             Ok(_msg) => (),
             Err(_err) => {
@@ -280,6 +272,7 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
                 break;
             },
         }
+        
         match socket.read_message() {
             Ok(_msg) => (),
             Err(_err) => {
@@ -287,8 +280,8 @@ pub fn connect_to(url: &str, token: &str, channelid: u64, pings: &Vec<u64>) {
                 break;
             },
         }
+        
         println!("[{:02}.{:02}.{:02}] - Heartbeat sent at {:02}:{:02}:{:02}!", Local::now().day(), Local::now().month(), Local::now().year(), Local::now().hour(), Local::now().minute(), Local::now().second());
-
     }
 }
 
