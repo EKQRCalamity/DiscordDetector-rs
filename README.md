@@ -27,7 +27,7 @@ This is pretty lightweight and uses between 1-2.5 mb ram/instance and even with 
 ### Building:
 
  - Download Cargo (Not just rustc).
- - Clone this repo `git clone https://github.dev/EKQRCalamity/DiscordDetector-rs.git`
+ - Clone this repo `git clone https://github.com/EKQRCalamity/DiscordDetector-rs.git`
  - Change the directory to the root directory of the repo `cd DiscordDetector-rs`
  - Build the project `cargo build` or `cargo build --release`
 
