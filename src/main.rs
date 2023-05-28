@@ -1,5 +1,6 @@
 use std::env;
 
+
 use crate::gateway::getgateway;
 mod gateway;
 mod config;
@@ -16,55 +17,53 @@ pub fn read_input(prompt: &str) -> String {
 }
 
 struct ArgPasser {
-    token: &str,
+    token: String,
     config: ConfigStruct,
 }
 
 impl ArgPasser {
-    fn new(t: &str, c: ConfigStruct) {
-        ArgPasser { token: t, config: c }
+    pub fn new(t: String, c: ConfigStruct) -> ArgPasser {
+        return ArgPasser { token: t, config: c };
     }
 
-    fn setConfig(c: ConfigStruct) {
+    fn setconfig(&mut self, c: ConfigStruct) {
         self.config = c;
     }    
 
-    fn setToken(t: &str) {
+    fn settoken(&mut self, t: String) {
         self.token = t;
     }
 }
 
-fn handleargs(args: &Vec<_>) -> ArgPasser {
-    passer: ArgPasser = ArgPasser::new("", getconfig());
+fn handleargs(args: &mut[String]) -> ArgPasser {
+    let mut passer: ArgPasser = ArgPasser::new("".to_string(), getconfig());
     if args.len() > 1 {
         for argument in args {
             if argument == "-c" {
-                config = configconstructor
-                passer.setConfig(config);
+                let config = configconstructor();
+                passer.setconfig(config);
             } else {
-                passer.setToken(argument.as_str());
+                passer.settoken(argument.to_string());
             }
         }
     } else {
-        config = getconfig();
-        possibleuserinput = read_input("Please enter the user token:");
-        strinput = possibleuserinput.as_str().to_owned();
-        token = &strinput;  
+        let config = getconfig();
+        let possibleuserinput = read_input("Please enter the user token:");
+        let strinput = possibleuserinput.as_str().to_owned();
+        let token = &strinput;  
+        passer.setconfig(config);
+        passer.settoken(token.to_string());
     }
     return passer;
 }
 
 fn main() {
-    let token: &str;
-    let args: Vec<_> = env::args().collect();
-    let possibleuserinput: String;
-    let strinput: String;
-    let mut config: ConfigStruct;
-    argpasser = handleargs(&args);
+    let mut args: Vec<_> = env::args().collect();
+    let argpasser = handleargs(args.as_mut_slice());
     let url = getgateway(gateway::DiscordAPIVersions::V10);
     let actualurl = url + "/?v=10&encoding=json";
     println!("Connecting to: {}", actualurl);
-    gateway::connect_to(&actualurl.as_str(), argpasser.token, argpasser.config.channelid, &argpasser.config.ping);
+    gateway::connect_to(&actualurl.as_str(), argpasser.token.to_string().as_str(), argpasser.config.channelid, &argpasser.config.ping);
 }
 
 
