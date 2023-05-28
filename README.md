@@ -36,4 +36,3 @@ I dont take responsibility for anything that is done using this project or if yo
 
 **THIS WONT BE ABLE TO BE USED ON SMALL SERVERS WHERE USERS MIGHT ACTUALLY DM EACHOTHER. RECOMMEND TO HAVE A SERVER WITH AT LEAST A COUPLE HUNDRED USERS**
 
-
