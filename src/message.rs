@@ -27,12 +27,11 @@ impl MessageObj {
 
 pub fn sendmessage(msgobj: MessageObj, token: &str, channel_id: u64) {
     let reqclient = Client::new();
-    let mut serstring = String::new();
+    let mut _serstring = String::new();
     let serialized = serde_json::to_string(&msgobj);
     match serialized {
         Ok(message) => {
-            //println!("{}", message);
-            serstring = message;
+            _serstring = message;
         },
         Err(_err) => panic!("Error serializing message!"),
     }
@@ -42,11 +41,11 @@ pub fn sendmessage(msgobj: MessageObj, token: &str, channel_id: u64) {
     headers.insert(header::CONTENT_TYPE, header::HeaderValue::from_static("application/json"));
     let apiurl = format!("https://discord.com/api/v9/channels/{}/messages", channel_id);
     let response = reqclient.post(apiurl)
-                                    .body(serstring)
-                                    .headers(headers)
-                                    .send();
+                            .body(_serstring)
+                            .headers(headers)
+                            .send();
     match response {
-        Ok(_response) => print!(""),
+        Ok(_response) => (),
         Err(_err) => panic!("Error occured while sending message: {}", _err),
     }
 }
