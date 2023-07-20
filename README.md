@@ -1,3 +1,5 @@
+# **This application is currently NOT functioning, I will have to update it for the discord name change and if I update it I can just rewrite it in a better way. Source will follow as soon as I finished rewriting it.**
+
 # DiscordDetector-rs
 Discord Advertisement/Scam/Invite Detector using Selfbots written in rust. Currently in development.
 
